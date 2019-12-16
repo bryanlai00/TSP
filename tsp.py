@@ -58,9 +58,10 @@ def return_fitness(gen):
         distance += math.sqrt((i[0].x - i[len(i)-1].x)**2 + (i[0].y - i[len(i) - 1].y)**2)
         distances.append(distance)
     prString = ""
-    for i in distances:
-        i = 1/i
-        prString += str(i) + "|"
+    #for i in distances:
+    #    i = 1/i
+    #    prString += str(i) + "|"
+    #print(prString)
     return distances
 
 def shuffle(plist):
@@ -98,6 +99,8 @@ if __name__ == "__main__":
         trial = 0
         ##INITIALIZE NEW_GEN###
         new_gen = []
+        smallest_gen = []
+        ratio = 1000
         csv_points = []
         orig_csv_points = []
         generation = []
@@ -108,58 +111,21 @@ if __name__ == "__main__":
             csv_points.append(Point(float(problem[1][i]), float(problem[2][i]), float(problem[3][i])))
             orig_csv_points = csv_points
         copy = shuffle(csv_points)
-        while (len(new_gen) < 3):
-            generation = []
-            for i in range(0, 3):
-                copy = shuffle(copy)
-                generation.append(copy)
-            #printGen(generation)
-            fitness = return_fitness(generation)
-            #Create two paths.
-            two_gens = []
-            while(len(fitness) > 1):
-                index = fitness.index(max(fitness))
-                two_gens.append(generation[index])
-                fitness.pop(index)
-
-
-            ##Choosing a random segment of random length.
-            randLength = random.randint(1,len(two_gens[0]))
-            randStart = random.randint(1,len(two_gens[0]))
-            one_gen = []
-            while(len(one_gen) < len(two_gens[0])):
-                one_gen.append(-1)
-            #Reset counter
-            i = 0
-            while(i < randLength + 1):
-                one_gen[(randStart + i) % len(two_gens[0])] = two_gens[0][(randStart + i) % len(two_gens[0])]
-                i += 1
-            startIndex = (randStart + i) % len(two_gens[0])
-            otherIndex = startIndex
-            while(-1 in one_gen):
-                if(one_gen[startIndex] == -1 and not(two_gens[1][otherIndex % len(two_gens[1])] in one_gen)):
-                    one_gen[startIndex] = two_gens[1][otherIndex]
-                    startIndex = (startIndex + 1) % len(two_gens[0])
-                elif(one_gen[startIndex] != -1):
-                    startIndex = (startIndex + 1) % len(two_gens[0])
-                else:
-                    otherIndex = (otherIndex + 1) % len(two_gens[0])
-
-            new_gen.append(one_gen)
-        ##Reset generation##
-        generation = new_gen
-        new_gen = []
-        ##Begin trial iterating.
-        trial += 1
         while(trial < trials):
             while (len(new_gen) <= 3):
-                fitness = return_fitness(generation)
+                generation = []
+                for i in range(0, 3):
+                    copy = shuffle(copy)
+                    generation.append(copy)
                 #Create two paths.
                 two_gens = []
+                fitness = return_fitness(generation)
                 while(len(fitness) > 1):
-                    index = fitness.index(max(fitness))
+                    index = fitness.index(min(fitness))
                     two_gens.append(generation[index])
                     fitness.pop(index)
+                    #print("Generation:")
+                    #print(generation)
 
                 ##Choosing a random segment of random length.
                 randLength = random.randint(1,len(two_gens[0]))
@@ -185,9 +151,14 @@ if __name__ == "__main__":
 
                 new_gen.append(one_gen)
             generation = new_gen
+            fitness = return_fitness(generation)
+            if(min(fitness)/float(leastVal) < ratio):
+                ratio = min(fitness)/float(leastVal)
+                smallest_gen = generation
+                print(ratio)
+                print(smallest_gen)
             new_gen = []
             trial += 1
-        printGen(generation)
 
 
 
