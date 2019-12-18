@@ -49,13 +49,21 @@ def printGen(gen):
     print(retStr)
 
 
+def getDist(path):
+    distance = 0
+    for i in range(0, len(path) - 1):
+        distance += math.sqrt((path[i].x - path[i+1].x)**2 + (path[i].y - path[i + 1].y)**2)
+    distance += math.sqrt((path[0].x - path[len(path)-1].x)**2 + (path[0].y - path[len(path)-1].y)**2)
+    return distance
+
+
 def return_fitness(gen):
     distances = []
     for i in gen:
         distance = 0
         for x in range(0, len(i) - 1):
-            distance += math.sqrt((i[x].x - i[x+1].x)**2 + (i[x].y - i[x+1].y)**2)
-        distance += math.sqrt((i[0].x - i[len(i)-1].x)**2 + (i[0].y - i[len(i) - 1].y)**2)
+            distance += math.sqrt((float(i[x].x) - float(i[x+1].x))**2 + (float(i[x].y) - float(i[x+1].y))**2)
+        distance += math.sqrt(float((i[0].x) - float(i[len(i)-1].x))**2 + (float(i[0].y) - float(i[len(i) - 1].y))**2)
         distances.append(distance)
     prString = ""
     #for i in distances:
@@ -107,8 +115,10 @@ if __name__ == "__main__":
         trial += 1
         #Create points.
         print("Problem " + name)
+        t_index = 0
         for i in range(0, len(problem[1])):
-            csv_points.append(Point(float(problem[1][i]), float(problem[2][i]), float(problem[3][i])))
+            csv_points.append(Point(float(problem[1][i]), float(problem[2][i]), t_index))
+            t_index += 1
             orig_csv_points = csv_points
         copy = shuffle(csv_points)
         while(trial < trials):
@@ -152,14 +162,18 @@ if __name__ == "__main__":
                 new_gen.append(one_gen)
             generation = new_gen
             fitness = return_fitness(generation)
-            if(min(fitness)/float(leastVal) < ratio):
-                ratio = min(fitness)/float(leastVal)
-                smallest_gen = generation
-                print(ratio)
+            fitness_index = fitness.index(min(fitness))
+            if(float(min(fitness))/float(leastVal) < ratio):
+                ratio = float(min(fitness))/float(leastVal)
+                smallest_gen = generation[fitness_index]
+                print("Smallest Distance: " + str(leastVal))
+                print("Distance: " + str(getDist(smallest_gen)))
                 print(smallest_gen)
             new_gen = []
+            for i in generation:
+                copy = shuffle(i)
             trial += 1
-
+        print("\n")
 
 
 
